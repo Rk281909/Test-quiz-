@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Search, Filter, PlayCircle, Clock, BookOpen } from 'lucide-react';
 import { Link, useSearchParams } from 'react-router-dom';
+import { quizzes } from '../data/quizList';
 
 export function Quizzes() {
   const [searchParams] = useSearchParams();
@@ -23,19 +24,6 @@ export function Quizzes() {
       else setSearchQuery(initialCategory); // If not a tab, use as search query
     }
   }, [initialCategory]);
-
-  const quizzes = [
-    { id: 1, title: 'RBB Level 4 Pre-Test Mock', category: 'RBB', subject: 'Banking', questions: 50, time: 45, level: 'Medium' },
-    { id: 2, title: 'NRB Assistant Level IT Quiz', category: 'NRB', subject: 'IT', questions: 20, time: 15, level: 'Hard' },
-    { id: 3, title: 'Loksewa Kharidar GK', category: 'Loksewa', subject: 'GK', questions: 30, time: 25, level: 'Easy' },
-    { id: 4, title: 'Commercial Bank Management', category: 'Commercial', subject: 'Management', questions: 40, time: 35, level: 'Medium' },
-    { id: 5, title: 'Accounting Basics for Banking', category: 'All', subject: 'Accounting', questions: 25, time: 20, level: 'Easy' },
-    { id: 6, title: 'Economics & Finance Advanced', category: 'NRB', subject: 'Economics', questions: 35, time: 30, level: 'Hard' },
-    { id: 7, title: 'Microfinance Fundamentals', category: 'Microfinance', subject: 'Banking', questions: 30, time: 25, level: 'Medium' },
-    { id: 8, title: 'Development Banks Regulations', category: 'Development', subject: 'Law', questions: 25, time: 20, level: 'Hard' },
-    { id: 9, title: 'Loksewa Nayab Subba Model', category: 'Loksewa', subject: 'General Knowledge', questions: 50, time: 45, level: 'Medium' },
-    { id: 10, title: 'Microfinance Credit Management', category: 'Microfinance', subject: 'Finance', questions: 20, time: 15, level: 'Easy' },
-  ];
 
   const tabs = [
     { id: 'all', label: 'सबै (All)' },

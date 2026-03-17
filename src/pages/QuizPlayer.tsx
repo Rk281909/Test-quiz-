@@ -1,79 +1,27 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Clock, CheckCircle, XCircle, AlertCircle, ArrowRight, ArrowLeft, Flag, Trophy } from 'lucide-react';
+import { getQuestionsForQuiz } from '../data/questionBank';
+import { quizzes } from '../data/quizList';
 
 export function QuizPlayer() {
   const { id } = useParams();
   const navigate = useNavigate();
+  
+  // Find the quiz details
+  const quizId = parseInt(id || '1');
+  const quiz = quizzes.find(q => q.id === quizId) || quizzes[0];
+
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [selectedAnswers, setSelectedAnswers] = useState<Record<number, number>>({});
   const [isSubmitted, setIsSubmitted] = useState(false);
-  const [timeLeft, setTimeLeft] = useState(600); // 10 minutes
+  const [timeLeft, setTimeLeft] = useState(quiz.time * 60);
 
-  // Mock data based on the provided image
-  const questions = [
-    {
-      id: 1,
-      text: "कार्यालय व्यवस्थापन (Office Management) भन्नाले के बुझिन्छ? यसले सम्बोधन गर्ने मुख्य मुख्य विषयहरू के के रहेका छन्? प्रष्ट पार्नुहोस्।",
-      options: [
-        "कार्यालयको भौतिक संरचना निर्माण",
-        "कार्यालयको उद्देश्य प्राप्तिका लागि स्रोत साधनको योजना, संगठन, निर्देशन र नियन्त्रण",
-        "कर्मचारी भर्ना र छनोट मात्र",
-        "दैनिक प्रशासनिक कार्य मात्र"
-      ],
-      correctAnswer: 1,
-      explanation: "कार्यालय व्यवस्थापन भनेको कार्यालयको निर्धारित लक्ष्य प्राप्तिका लागि उपलब्ध मानवीय, भौतिक, वित्तीय र सूचना स्रोतहरूको प्रभावकारी र दक्षतापूर्वक परिचालन गर्ने प्रक्रिया हो।"
-    },
-    {
-      id: 2,
-      text: "मानव संसाधन योजना (Human Resource Planning) अन्तर्गत ध्यान दिनुपर्ने प्रमुख तत्त्वहरू के के हुन्? छोटकरीमा वर्णन गर्नुहोस्।",
-      options: [
-        "हालको जनशक्तिको अवस्था, भविष्यको माग, आपूर्ति पूर्वानुमान",
-        "कार्यालयको बजेट र खर्च",
-        "कम्प्युटर र सफ्टवेयरको आवश्यकता",
-        "ग्राहकको गुनासो व्यवस्थापन"
-      ],
-      correctAnswer: 0,
-      explanation: "मानव संसाधन योजनामा मुख्यतया हालको जनशक्तिको विश्लेषण, भविष्यमा चाहिने जनशक्तिको पूर्वानुमान, र ती जनशक्ति कसरी आपूर्ति गर्ने भन्ने कुरा पर्दछन्।"
-    },
-    {
-      id: 3,
-      text: "कार्यालय व्यवस्थापनको सन्दर्भमा आन्तरिक निरीक्षण (Internal Inspection) किन गरिन्छ?",
-      options: [
-        "कर्मचारीलाई दण्ड दिन",
-        "कार्यसम्पादनमा सुधार ल्याउन, गल्ती कमजोरी पत्ता लगाउन र सुशासन कायम गर्न",
-        "बाह्य लेखापरीक्षकलाई खुसी पार्न",
-        "कार्यालयको बजेट खर्च गर्न"
-      ],
-      correctAnswer: 1,
-      explanation: "आन्तरिक निरीक्षणको मुख्य उद्देश्य कार्यालयका कामकारबाही नियमसंगत, प्रभावकारी र पारदर्शी छन् कि छैनन् भनी जाँच्नु र सुधारका लागि सुझाव दिनु हो।"
-    },
-    {
-      id: 4,
-      text: "ग्राहक सन्तुष्टि (Customer Satisfaction) को परिचय दिँदै नेपालको बैंकिङ क्षेत्रमा ग्राहक सन्तुष्टि मापन गर्न के-कस्ता विधि प्रयोगमा छन्?",
-      options: [
-        "कर्मचारीको तलब वृद्धि गरेर",
-        "सर्वेक्षण (Survey), गुनासो पेटिका (Suggestion Box), र फिडब्याक फारम (Feedback Form)",
-        "बैंकको नाफा हेरेर",
-        "शाखा विस्तार गरेर"
-      ],
-      correctAnswer: 1,
-      explanation: "ग्राहक सन्तुष्टि मापन गर्न बैंकहरूले प्रत्यक्ष सर्वेक्षण, गुनासो पेटिका, अनलाइन फिडब्याक, र ग्राहक सेवा केन्द्र (Call Center) मार्फत जानकारी लिने गर्दछन्।"
-    },
-    {
-      id: 5,
-      text: "संस्थागत सुशासन (Corporate Governance) को परिचय दिनुहोस्। यसका तत्त्वहरू वर्णन गर्दै नैतिकता (Ethics) ले संस्थागत सुशासन कायम गर्न कसरी सहयोग पुर्याउँछ?",
-      options: [
-        "संस्थालाई नाफामा मात्र लैजाने नीति",
-        "संस्थालाई पारदर्शी, जवाफदेही र कानुनसम्मत रूपमा सञ्चालन गर्ने प्रणाली",
-        "कर्मचारीलाई नियन्त्रण गर्ने संयन्त्र",
-        "सरकारलाई कर तिर्ने प्रक्रिया"
-      ],
-      correctAnswer: 1,
-      explanation: "संस्थागत सुशासन भनेको सरोकारवालाहरूको हित संरक्षण गर्दै संस्थालाई विधि, पद्धति र कानुनको परिधिभित्र रहेर सञ्चालन गर्ने व्यवस्था हो।"
-    }
-  ];
+  // Use the imported questions generator
+  const questions = useMemo(() => {
+    return getQuestionsForQuiz(quizId, quiz.questions, quiz.category);
+  }, [quizId, quiz.questions, quiz.category]);
 
   useEffect(() => {
     if (timeLeft > 0 && !isSubmitted) {
@@ -116,7 +64,7 @@ export function QuizPlayer() {
             <ArrowLeft size={24} />
           </button>
           <div>
-            <h1 className="text-xl font-bold text-slate-900">नेपाल बैंक लिमिटेड - व्यवस्थापन (Management)</h1>
+            <h1 className="text-xl font-bold text-slate-900">{quiz.title}</h1>
             <p className="text-sm text-slate-500">प्रश्न {currentQuestion + 1} / {questions.length}</p>
           </div>
         </div>
