@@ -20,8 +20,10 @@ export function AdBanner() {
   }, []);
 
   return (
-    <div className="w-full flex justify-center my-6 overflow-hidden min-h-[50px]">
-      <div id="container-68963a5160d42f6daa410358980df4c0" ref={containerRef}></div>
+    <div className="w-full flex justify-center my-4 overflow-hidden">
+      <div className="w-full max-w-[320px] sm:max-w-[468px] md:max-w-[728px] max-h-[90px] overflow-hidden rounded-lg shadow-sm bg-slate-100 flex items-center justify-center">
+        <div id="container-68963a5160d42f6daa410358980df4c0" ref={containerRef} className="scale-75 sm:scale-90 md:scale-100 origin-center"></div>
+      </div>
     </div>
   );
 }
